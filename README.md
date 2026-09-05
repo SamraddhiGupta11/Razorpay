@@ -2,6 +2,12 @@
 ### Enterprise AI Revenue Intelligence Platform: Recover, Protect & Listen
 *Technical Credibility · Financial Explainability · Zero Data Leakage · Jury-Ready Prototype*
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-brightgreen?style=for-the-badge&logo=github)](https://samraddhigupta11.github.io/Razorpay/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/SamraddhiGupta11/Razorpay)
+[![Build Status](https://img.shields.io/badge/Deployment-Live%20on%20gh--pages-success?style=for-the-badge)](https://samraddhigupta11.github.io/Razorpay/)
+
+> 🚀 **Live Interactive Demo (GitHub Pages):** [https://samraddhigupta11.github.io/Razorpay/](https://samraddhigupta11.github.io/Razorpay/)
+
 ---
 
 ## 📌 1. Executive Summary & Problem
@@ -139,8 +145,8 @@ $$\text{Program ROI (\%)} = \left( \frac{\text{Net Added Profit}}{\text{Total Op
 
 ### 1. Clone & Setup Environment
 ```bash
-git clone <repo-url>
-cd payrevive
+git clone https://github.com/SamraddhiGupta11/Razorpay.git
+cd Razorpay
 cp .env.example .env
 ```
 
@@ -184,7 +190,16 @@ npm run dev
 
 ---
 
-## 🐳 9. Docker Deployment
+## 🌐 9. Live Web Deployment (GitHub Pages)
+
+The interactive application is deployed and live for jury walkthrough and exploration:
+* 🔗 **Live URL:** [https://samraddhigupta11.github.io/Razorpay/](https://samraddhigupta11.github.io/Razorpay/)
+* 📦 **Deployment Branch:** `gh-pages`
+* 🛡️ **Live Features Available:** Interactive Executive Dashboard, Autonomous Decision Center with Explainable AI (XAI), Return Risk & RTO Radars, Voice of Customer Hinglish NLP analyzer, and Dual Revenue Simulator.
+
+---
+
+## 🐳 10. Local Docker Full-Stack Deployment
 
 Deploy the entire full-stack platform (PostgreSQL + FastAPI + React Nginx) with a single command:
 ```bash
@@ -196,7 +211,7 @@ docker-compose up --build -d
 
 ---
 
-## ⏱️ 10. The 5-Minute Jury Demonstration Script
+## ⏱️ 11. The 5-Minute Jury Demonstration Script
 
 Follow this deterministic sequence during judge evaluation:
 
