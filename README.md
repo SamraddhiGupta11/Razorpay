@@ -2,10 +2,6 @@
 ### Enterprise AI Revenue Intelligence Platform: Recover, Protect & Listen
 *Technical Credibility · Financial Explainability · Zero Data Leakage · Jury-Ready Prototype*
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-brightgreen?style=for-the-badge&logo=github)](https://samraddhigupta11.github.io/Razorpay/)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/SamraddhiGupta11/Razorpay)
-[![Build Status](https://img.shields.io/badge/Deployment-Live%20on%20gh--pages-success?style=for-the-badge)](https://samraddhigupta11.github.io/Razorpay/)
-
 > 🚀 **Live Interactive Demo (GitHub Pages):** [https://samraddhigupta11.github.io/Razorpay/](https://samraddhigupta11.github.io/Razorpay/)
 
 ---
