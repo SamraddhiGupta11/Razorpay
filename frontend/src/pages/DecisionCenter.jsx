@@ -41,6 +41,7 @@ export default function DecisionCenter({ preselectedCheckout }) {
 
   const [aiResult, setAiResult] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [justEvaluated, setJustEvaluated] = useState(false);
   const [simulating, setSimulating] = useState(false);
   const [simResult, setSimResult] = useState(null);
   const [simStep, setSimStep] = useState(0);
@@ -81,19 +82,24 @@ export default function DecisionCenter({ preselectedCheckout }) {
       coupon_views: cart.abandonment_reason === 'PRICE' ? 3 : 0,
       time_on_checkout_min: cart.abandonment_reason === 'HESITATION' ? 8.5 : 3.5,
       device: cart.device || 'Mobile',
-      payment_method: cart.payment_method || 'UPI'
+      payment_method: cart.payment_method || 'UPI',
+      abandonment_reason: cart.abandonment_reason,
     };
     setFormData(newForm);
     runAIAnalysis(newForm);
   };
 
-  const runAIAnalysis = async (dataToAnalyze = formData) => {
+  const runAIAnalysis = async (dataToAnalyze) => {
+    const payload = dataToAnalyze || formData;
     try {
       setAnalyzing(true);
       setSimResult(null);
       setSimStep(0);
-      const res = await apiService.recommendAction(dataToAnalyze);
+      await new Promise((r) => setTimeout(r, 300));
+      const res = await apiService.recommendAction(payload);
       setAiResult(res);
+      setJustEvaluated(true);
+      setTimeout(() => setJustEvaluated(false), 2500);
     } catch (err) {
       console.error("AI Analysis error:", err);
     } finally {
@@ -155,13 +161,18 @@ export default function DecisionCenter({ preselectedCheckout }) {
           </div>
 
           <div className="flex items-center gap-2">
+            {justEvaluated && (
+              <span className="text-xs font-semibold text-caught bg-caught/10 border border-caught/30 px-3 py-1.5 rounded-sm flex items-center gap-1.5 animate-fade-in">
+                <CheckCircle2 className="h-4 w-4" /> Evaluated Live!
+              </span>
+            )}
             <button
-              onClick={() => runAIAnalysis()}
+              onClick={() => runAIAnalysis(formData)}
               disabled={analyzing}
               className="flex items-center gap-2 px-4 py-2.5 rounded-sm bg-signal hover:bg-signal/85 text-fg font-semibold text-sm transition-all cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`h-4 w-4 ${analyzing ? 'animate-spin' : ''}`} />
-              <span>Run AI Evaluation</span>
+              <span>{analyzing ? 'Evaluating Signals...' : 'Run AI Evaluation'}</span>
             </button>
           </div>
         </div>
@@ -298,10 +309,12 @@ export default function DecisionCenter({ preselectedCheckout }) {
             </div>
 
             <button
-              onClick={() => runAIAnalysis()}
-              className="w-full py-2.5 rounded-sm bg-signal hover:bg-signal text-fg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
+              onClick={() => runAIAnalysis(formData)}
+              disabled={analyzing}
+              className="w-full py-2.5 rounded-sm bg-signal hover:bg-signal text-fg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Re-evaluate Signals
+              <RefreshCw className={`h-3.5 w-3.5 ${analyzing ? 'animate-spin' : ''}`} />
+              <span>{analyzing ? 'Evaluating Signals...' : 'Re-evaluate Signals'}</span>
             </button>
           </div>
         </div>
