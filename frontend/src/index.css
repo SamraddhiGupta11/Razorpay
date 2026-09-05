@@ -1,0 +1,233 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   PayRevive design tokens
+
+   The product is about money leaking out of a checkout and being caught
+   again. Colour carries that meaning and nothing else: `loss` is revenue
+   on its way out, `caught` is revenue recovered or protected, `signal` is
+   the model acting. Everything else is ink and line. Figures are set in a
+   tabular mono so columns of money align and read as a ledger.
+   ------------------------------------------------------------------ */
+@theme {
+  /* Ground and surfaces */
+  --color-ink: #0b0f14;
+  --color-surface: #121820;
+  --color-raise: #18202a;
+  --color-sunken: #080b0f;
+  --color-line: #212c38;
+  --color-line-soft: #1a232d;
+
+  /* Text */
+  --color-fg: #e6edf3;
+  --color-fg-dim: #94a3b4;
+  --color-fg-mute: #64748b;
+
+  /* Signal colours — each has exactly one job */
+  --color-loss: #ff6b54;
+  --color-loss-dim: #7a2b1f;
+  --color-caught: #3ddc97;
+  --color-caught-dim: #14503a;
+  --color-signal: #8b93ff;
+  --color-signal-dim: #2e2f6b;
+  --color-warn: #e8b14c;
+  --color-warn-dim: #5c421a;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Restrained radii — this is an instrument panel, not a pill factory */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink text-fg antialiased min-h-screen;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv01", "ss01";
+  }
+
+  /* Every figure in the product is tabular so columns line up */
+  code,
+  kbd,
+  samp,
+  pre,
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "zero" 1;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.018em;
+  }
+
+  ::selection {
+    background: var(--color-signal);
+    color: var(--color-ink);
+  }
+
+  /* One focus treatment, everywhere, and it is always visible */
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-sunken);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line);
+    border: 3px solid var(--color-sunken);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2e3d4d;
+  }
+}
+
+@layer components {
+  /* Eyebrow: a machine-read field name. Mono + uppercase marks it as a
+     label the system produced, distinct from human prose in the sans. */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--color-fg-mute);
+  }
+
+  /* Money and metrics. Optical sizing does the emphasis, not font-weight. */
+  .figure {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Navigation rail.
+
+   The open/closed state is plain CSS driven by `data-open` rather than
+   toggled translate utilities: those compile to the `translate` property in
+   v4 and the closed value kept winning over the open one, so the drawer
+   never appeared on a phone. This is unambiguous. */
+.app-rail {
+  position: fixed;
+  inset-block: 0;
+  left: 0;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.2s var(--ease-out);
+}
+.app-rail[data-open='true'] {
+  transform: translateX(0);
+}
+
+.app-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-ink) 70%, transparent);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease-out);
+}
+.app-scrim[data-open='true'] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (min-width: 1024px) {
+  .app-rail {
+    transform: translateX(0);
+  }
+  .app-scrim {
+    display: none;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Staged entrance: content settles once on mount rather than each element
+   animating on its own. `--i` offsets children into a short cascade. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-fade-in {
+  animation: rise 0.36s var(--ease-out) both;
+}
+
+@utility stagger-* {
+  animation-delay: calc(--value(integer) * 45ms);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-raise);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--color-fg) 6%, transparent),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

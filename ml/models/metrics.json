@@ -1,0 +1,282 @@
+{
+  "timestamp": "2026-09-03T11:10:12.336008",
+  "dataset": "checkout_records_100k.csv (Synthetic)",
+  "synthetic_disclosure": "Trained on calibrated synthetic telemetry modeled on e-commerce transaction dynamics with strict zero-leakage temporal separation.",
+  "models": {
+    "model_1_abandonment": {
+      "selected_algorithm": "HistGradientBoosting",
+      "best_metrics": {
+        "model_name": "HistGradientBoosting",
+        "accuracy": 0.7554,
+        "precision": 0.7435,
+        "recall": 0.4402,
+        "f1_score": 0.553,
+        "roc_auc": 0.7767,
+        "confusion_matrix": [
+          [
+            12082,
+            1044
+          ],
+          [
+            3848,
+            3026
+          ]
+        ]
+      },
+      "comparison": {
+        "HistGradientBoosting": {
+          "model_name": "HistGradientBoosting",
+          "accuracy": 0.7554,
+          "precision": 0.7435,
+          "recall": 0.4402,
+          "f1_score": 0.553,
+          "roc_auc": 0.7767,
+          "confusion_matrix": [
+            [
+              12082,
+              1044
+            ],
+            [
+              3848,
+              3026
+            ]
+          ]
+        },
+        "RandomForest": {
+          "model_name": "RandomForest",
+          "accuracy": 0.7546,
+          "precision": 0.744,
+          "recall": 0.436,
+          "f1_score": 0.5498,
+          "roc_auc": 0.7728,
+          "confusion_matrix": [
+            [
+              12095,
+              1031
+            ],
+            [
+              3877,
+              2997
+            ]
+          ]
+        }
+      }
+    },
+    "model_2_recovery": {
+      "selected_algorithm": "RandomForest",
+      "best_metrics": {
+        "model_name": "RandomForest",
+        "accuracy": 0.5911,
+        "precision": 0.5941,
+        "recall": 0.6872,
+        "f1_score": 0.6372,
+        "roc_auc": 0.6282,
+        "confusion_matrix": [
+          [
+            1594,
+            1687
+          ],
+          [
+            1124,
+            2469
+          ]
+        ]
+      },
+      "comparison": {
+        "HistGradientBoosting": {
+          "model_name": "HistGradientBoosting",
+          "accuracy": 0.5906,
+          "precision": 0.5935,
+          "recall": 0.6883,
+          "f1_score": 0.6374,
+          "roc_auc": 0.626,
+          "confusion_matrix": [
+            [
+              1587,
+              1694
+            ],
+            [
+              1120,
+              2473
+            ]
+          ]
+        },
+        "RandomForest": {
+          "model_name": "RandomForest",
+          "accuracy": 0.5911,
+          "precision": 0.5941,
+          "recall": 0.6872,
+          "f1_score": 0.6372,
+          "roc_auc": 0.6282,
+          "confusion_matrix": [
+            [
+              1594,
+              1687
+            ],
+            [
+              1124,
+              2469
+            ]
+          ]
+        }
+      }
+    },
+    "model_3_return_risk": {
+      "selected_algorithm": "HistGradientBoosting",
+      "best_metrics": {
+        "accuracy": 0.5643,
+        "precision": 0.1224,
+        "recall": 0.4416,
+        "f1_score": 0.1917,
+        "roc_auc": 0.5146,
+        "pr_auc": 0.129,
+        "confusion_matrix": [
+          [
+            1538,
+            1111
+          ],
+          [
+            196,
+            155
+          ]
+        ]
+      },
+      "features": [
+        "order_value",
+        "discount_percentage",
+        "customer_return_rate",
+        "product_return_rate",
+        "size_sensitive",
+        "previous_orders",
+        "cat_Fashion",
+        "cat_Footwear",
+        "cat_Electronics",
+        "cat_Beauty",
+        "cat_Home",
+        "pay_UPI",
+        "pay_Credit Card",
+        "pay_Debit Card",
+        "pay_COD",
+        "reg_North",
+        "reg_South",
+        "reg_West",
+        "reg_East",
+        "reg_Central"
+      ],
+      "leakage_verified": true
+    },
+    "model_4_rto_risk": {
+      "selected_algorithm": "HistGradientBoosting",
+      "best_metrics": {
+        "accuracy": 0.9667,
+        "precision": 0.8947,
+        "recall": 0.5368,
+        "f1_score": 0.6711,
+        "roc_auc": 0.9753,
+        "pr_auc": 0.7921,
+        "confusion_matrix": [
+          [
+            2798,
+            12
+          ],
+          [
+            88,
+            102
+          ]
+        ]
+      },
+      "features": [
+        "is_cod",
+        "cod_amount",
+        "order_value",
+        "delivery_attempts",
+        "customer_return_rate",
+        "previous_orders",
+        "carr_Bluedart",
+        "carr_Delhivery",
+        "carr_Shadowfax",
+        "carr_Xpressbees",
+        "reg_North",
+        "reg_South",
+        "reg_West",
+        "reg_East",
+        "reg_Central",
+        "is_tier3_pincode"
+      ],
+      "leakage_verified": true
+    },
+    "model_5_fraud_anomaly": {
+      "selected_algorithm": "IsolationForest + MultiSignalRules",
+      "best_metrics": {
+        "algorithm": "IsolationForest + MultiSignalRules",
+        "contamination": 0.04,
+        "detected_anomaly_pct": 0.04,
+        "sample_size": 10000,
+        "signals_tracked": [
+          "address_clustering",
+          "velocity_spike",
+          "cod_refusal",
+          "refund_abuse"
+        ]
+      },
+      "features": [
+        "order_value",
+        "is_cod",
+        "lifetime_orders",
+        "cancellation_rate",
+        "return_rate",
+        "payment_attempts"
+      ],
+      "leakage_verified": true
+    },
+    "nlp_voice_of_customer": {
+      "algorithm": "Lightweight Multilingual / Indic Aspect-Based NLP Engine",
+      "languages": [
+        "English",
+        "Hindi",
+        "Hinglish"
+      ],
+      "aspects_tracked": [
+        "QUALITY",
+        "PRICE",
+        "DELIVERY",
+        "PACKAGING",
+        "SIZE",
+        "FIT",
+        "PAYMENT",
+        "CUSTOMER_SUPPORT",
+        "PRODUCT_DESCRIPTION",
+        "RETURN_PROCESS"
+      ],
+      "status": "active"
+    }
+  },
+  "reason_engine": {
+    "type": "Diagnostic Evidentiary Rule & Heuristic Engine",
+    "categories": [
+      "SHIPPING",
+      "PAYMENT",
+      "PRICE",
+      "TECHNICAL",
+      "HESITATION",
+      "TRUST"
+    ],
+    "evidence_signals": [
+      "shipping_ratio",
+      "payment_attempts",
+      "payment_failed",
+      "technical_errors",
+      "coupon_views",
+      "time_on_checkout_min"
+    ]
+  },
+  "explainability": {
+    "type": "Local Feature Attribution Engine (PREDICT -> EXPLAIN -> DECIDE)",
+    "supports": [
+      "positive_drivers",
+      "negative_drivers",
+      "percentage_weights"
+    ]
+  },
+  "updated_at": "2026-09-04T13:17:05.185792"
+}
