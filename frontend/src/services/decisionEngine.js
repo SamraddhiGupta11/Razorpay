@@ -32,60 +32,57 @@ export function diagnoseAbandonmentReason(data) {
 
   // 1. Payment Friction
   if (paymentFailed) {
-    scores.PAYMENT += 5.0;
-    evidenceMap.PAYMENT.push("Payment gateway failure flagged during transaction attempt");
+    scores.PAYMENT += 12.0;
+    evidenceMap.PAYMENT.push("Payment gateway failure/decline flagged during checkout");
   }
   if (paymentAttempts >= 2) {
-    scores.PAYMENT += paymentAttempts * 1.5;
+    scores.PAYMENT += paymentAttempts * 3.0;
     evidenceMap.PAYMENT.push(`Multiple payment attempts recorded: ${paymentAttempts} attempts`);
   }
 
   // 2. Technical Friction
   if (technicalErrors > 0) {
-    scores.TECHNICAL += technicalErrors * 4.0;
-    evidenceMap.TECHNICAL.push(`Client-side technical errors detected: ${technicalErrors} event(s)`);
-  }
-
-  // Explicit reason seed
-  if (explicitReason && scores[explicitReason] !== undefined) {
-    scores[explicitReason] += 6.0;
-    evidenceMap[explicitReason].push(`Explicit session telemetry flags root cause: ${explicitReason}`);
+    scores.TECHNICAL += 12.0 + (technicalErrors * 3.0);
+    evidenceMap.TECHNICAL.push(`Client-side technical/validation exceptions detected: ${technicalErrors} error(s)`);
   }
 
   // 3. Shipping Friction
-  if (shippingCost >= 500) {
-    scores.SHIPPING += 4.5;
-    evidenceMap.SHIPPING.push(`High absolute delivery fee (₹${shippingCost.toLocaleString('en-IN')}) at checkout`);
-  } else if (shippingRatio > 0.08) {
-    scores.SHIPPING += 4.5;
-    evidenceMap.SHIPPING.push(`High shipping-to-cart ratio: ${(shippingRatio * 100).toFixed(1)}% of order value`);
-  } else if (shippingRatio > 0.03 || shippingCost > 149) {
-    scores.SHIPPING += 3.0;
-    evidenceMap.SHIPPING.push(`Delivery fee friction: ₹${shippingCost.toLocaleString('en-IN')} (${(shippingRatio * 100).toFixed(1)}% of cart)`);
+  if (shippingCost >= 400) {
+    scores.SHIPPING += 10.0;
+    evidenceMap.SHIPPING.push(`High delivery charge (₹${shippingCost.toLocaleString('en-IN')}) caused cart abandon`);
+  } else if (shippingRatio >= 0.05) {
+    scores.SHIPPING += 9.0;
+    evidenceMap.SHIPPING.push(`Excessive shipping-to-cart ratio: ${(shippingRatio * 100).toFixed(1)}% of order value`);
+  } else if (shippingCost >= 149) {
+    scores.SHIPPING += 6.5;
+    evidenceMap.SHIPPING.push(`Delivery fee friction: ₹${shippingCost.toLocaleString('en-IN')} at delivery step`);
+  } else if (shippingCost > 0) {
+    scores.SHIPPING += 2.0;
+    evidenceMap.SHIPPING.push(`Shipping fee: ₹${shippingCost.toLocaleString('en-IN')}`);
   }
 
   // 4. Price Sensitivity
   if (couponViews >= 3) {
-    scores.PRICE += 4.0;
-    evidenceMap.PRICE.push(`Aggressive coupon code hunting: ${couponViews} coupon views`);
+    scores.PRICE += 11.0;
+    evidenceMap.PRICE.push(`Aggressive coupon code hunting: ${couponViews} voucher searches without promo`);
   } else if (couponViews >= 1) {
-    scores.PRICE += 1.5;
+    scores.PRICE += 5.0;
     evidenceMap.PRICE.push(`Discount code exploration: ${couponViews} view(s)`);
   }
   if (cartValue > 30000 && (customerSegment === 'Occasional' || customerSegment === 'New')) {
-    scores.PRICE += 2.0;
+    scores.PRICE += 3.0;
     evidenceMap.PRICE.push(`Large cart threshold (₹${cartValue.toLocaleString('en-IN')}) with no applied discount`);
   }
 
   // 5. Hesitation
-  if (timeOnCheckout > 6.0 && !paymentFailed && technicalErrors === 0) {
-    scores.HESITATION += 3.5;
-    evidenceMap.HESITATION.push(`Extended checkout dwell time: ${timeOnCheckout.toFixed(1)} min with indecision`);
+  if (timeOnCheckout >= 6.0 && !paymentFailed && technicalErrors === 0) {
+    scores.HESITATION += 9.0 + (timeOnCheckout * 0.5);
+    evidenceMap.HESITATION.push(`Extended checkout dwell time: ${timeOnCheckout.toFixed(1)} min with high hesitation`);
   }
 
   // 6. Trust
-  if (customerSegment === 'New' && cartValue > 20000) {
-    scores.TRUST += 2.5;
+  if (customerSegment === 'New' && cartValue > 25000 && !paymentFailed) {
+    scores.TRUST += 5.0;
     evidenceMap.TRUST.push(`First-time buyer with high ticket cart (₹${cartValue.toLocaleString('en-IN')})`);
   }
 
@@ -99,7 +96,7 @@ export function diagnoseAbandonmentReason(data) {
     }
   }
 
-  const confidence = bestScore > 0 ? Math.min(0.65 + (bestScore / 20.0), 0.96) : 0.72;
+  const confidence = bestScore > 0 ? Math.min(0.70 + (bestScore / 30.0), 0.98) : 0.75;
   const evidence = evidenceMap[bestReason].length > 0
     ? evidenceMap[bestReason]
     : [`Friction telemetry points to ${bestReason.toLowerCase()} as primary barrier to purchase.`];

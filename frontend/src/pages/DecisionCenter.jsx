@@ -68,22 +68,23 @@ export default function DecisionCenter({ preselectedCheckout }) {
   }, [preselectedCheckout]);
 
   const handleSelectCandidate = (cart) => {
-    setSelectedCartId(cart.abandoned_cart_id || cart.checkout_id);
+    const id = cart.abandoned_cart_id || cart.checkout_id;
+    setSelectedCartId(id);
+    const reason = cart.abandonment_reason;
     const newForm = {
       cart_value: Number(cart.cart_value) || 2500,
-      shipping_cost: cart.shipping_cost !== undefined ? Number(cart.shipping_cost) : (cart.abandonment_reason === 'SHIPPING' ? 249 : 49),
-      customer_segment: cart.customer_segment || 'Regular',
+      shipping_cost: cart.shipping_cost !== undefined ? Number(cart.shipping_cost) : (reason === 'SHIPPING' ? 1500 : 49),
+      customer_segment: cart.customer_segment || (Number(cart.cart_value) >= 50000 ? 'VIP' : 'Regular'),
       is_returning: cart.customer_segment !== 'New',
-      previous_orders: cart.customer_segment === 'VIP' ? 8 : cart.customer_segment === 'Regular' ? 3 : 0,
+      previous_orders: (cart.customer_segment === 'VIP' || Number(cart.cart_value) >= 50000) ? 8 : (cart.customer_segment === 'Regular' ? 3 : 0),
       previous_abandonments: 1,
-      payment_failed: cart.abandonment_reason === 'PAYMENT',
-      payment_attempts: cart.abandonment_reason === 'PAYMENT' ? 2 : 1,
-      technical_errors: cart.abandonment_reason === 'TECHNICAL' ? 1 : 0,
-      coupon_views: cart.abandonment_reason === 'PRICE' ? 3 : 0,
-      time_on_checkout_min: cart.abandonment_reason === 'HESITATION' ? 8.5 : 3.5,
+      payment_failed: reason === 'PAYMENT',
+      payment_attempts: reason === 'PAYMENT' ? 2 : 1,
+      technical_errors: reason === 'TECHNICAL' ? 2 : 0,
+      coupon_views: reason === 'PRICE' ? 4 : 0,
+      time_on_checkout_min: reason === 'HESITATION' ? 9.0 : 2.5,
       device: cart.device || 'Mobile',
-      payment_method: cart.payment_method || 'UPI',
-      abandonment_reason: cart.abandonment_reason,
+      payment_method: cart.payment_method || (reason === 'PAYMENT' ? 'UPI' : 'Credit Card'),
     };
     setFormData(newForm);
     runAIAnalysis(newForm);
@@ -95,11 +96,11 @@ export default function DecisionCenter({ preselectedCheckout }) {
       setAnalyzing(true);
       setSimResult(null);
       setSimStep(0);
-      await new Promise((r) => setTimeout(r, 300));
+      await new Promise((r) => setTimeout(r, 400));
       const res = await apiService.recommendAction(payload);
       setAiResult(res);
       setJustEvaluated(true);
-      setTimeout(() => setJustEvaluated(false), 2500);
+      setTimeout(() => setJustEvaluated(false), 3000);
     } catch (err) {
       console.error("AI Analysis error:", err);
     } finally {
@@ -111,6 +112,7 @@ export default function DecisionCenter({ preselectedCheckout }) {
     if (!aiResult) return;
     try {
       setSimulating(true);
+      setSimResult(null);
       setSimStep(1); // 1. Sending
       await new Promise(r => setTimeout(r, 600));
       setSimStep(2); // 2. Customer Opened
@@ -120,10 +122,11 @@ export default function DecisionCenter({ preselectedCheckout }) {
       setSimStep(4); // 4. Converted
 
       const payload = {
-        action: aiResult.decision.recommended_action,
-        channel: aiResult.decision.channel,
-        discount_cost: aiResult.decision.action_comparison_matrix.find(
-          x => x.action === aiResult.decision.recommended_action
+        action: aiResult.decision?.recommended_action || 'FREE_SHIPPING',
+        channel: aiResult.decision?.channel || 'WHATSAPP',
+        cart_value: formData.cart_value,
+        discount_cost: aiResult.decision?.action_comparison_matrix?.find(
+          x => x.action === (aiResult.decision?.recommended_action || aiResult.decision?.action)
         )?.discount_cost || 0
       };
 
@@ -183,22 +186,34 @@ export default function DecisionCenter({ preselectedCheckout }) {
             <span className="text-xs font-semibold uppercase tracking-wider text-fg-dim">
               Quick Pick Live Abandoned Carts:
             </span>
-            <span className="text-[11px] text-signal font-medium">Click to load telemetry</span>
+            <span className="text-[11px] text-signal font-medium">Click any cart to evaluate telemetry</span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-            {candidates.map((c) => (
-              <button
-                key={c.abandoned_cart_id}
-                onClick={() => handleSelectCandidate(c)}
-                className={`p-2.5 rounded-sm text-left border text-xs transition-all cursor-pointer ${
-                  selectedCartId === c.abandoned_cart_id
-                    ? 'bg-signal/30 border-signal/40 text-fg'
-                    : 'bg-surface border-line text-fg-dim hover:border-line hover:bg-raise/50' }`}
-              >
-                <div className="font-bold text-fg">{formatCurrency(c.cart_value)}</div>
-                <div className="text-[10px] text-fg-dim truncate mt-0.5">{c.customer_segment} • {c.abandonment_reason}</div>
-              </button>
-            ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {candidates.map((c) => {
+              const cid = c.abandoned_cart_id || c.checkout_id;
+              const isSelected = selectedCartId === cid;
+              return (
+                <button
+                  key={cid}
+                  onClick={() => handleSelectCandidate(c)}
+                  className={`p-3 rounded-md text-left border text-xs transition-all cursor-pointer relative ${
+                    isSelected
+                      ? 'bg-signal/20 border-signal text-fg shadow-sm shadow-signal/30 ring-1 ring-signal/50'
+                      : 'bg-surface border-line text-fg-dim hover:border-line hover:bg-raise/50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-fg text-sm">{formatCurrency(c.cart_value)}</span>
+                    {isSelected && (
+                      <span className="h-2 w-2 rounded-full bg-signal animate-pulse" />
+                    )}
+                  </div>
+                  <div className="text-[11px] text-fg-dim truncate mt-1">
+                    {c.customer_segment || 'Customer'} • <span className="text-signal font-semibold">{c.abandonment_reason}</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -308,19 +323,26 @@ export default function DecisionCenter({ preselectedCheckout }) {
               </div>
             </div>
 
-            <button
-              onClick={() => runAIAnalysis(formData)}
-              disabled={analyzing}
-              className="w-full py-2.5 rounded-sm bg-signal hover:bg-signal text-fg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              <RefreshCw className={`h-3.5 w-3.5 ${analyzing ? 'animate-spin' : ''}`} />
-              <span>{analyzing ? 'Evaluating Signals...' : 'Re-evaluate Signals'}</span>
-            </button>
+            <div className="pt-2 space-y-2">
+              <button
+                onClick={() => runAIAnalysis(formData)}
+                disabled={analyzing}
+                className="w-full py-3 rounded-md bg-signal hover:bg-signal/85 text-fg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2 shadow-md shadow-signal/20 active:scale-[0.99]"
+              >
+                <RefreshCw className={`h-4 w-4 ${analyzing ? 'animate-spin' : ''}`} />
+                <span>{analyzing ? 'Evaluating Live Signals...' : 'Re-evaluate Signals'}</span>
+              </button>
+              {justEvaluated && (
+                <div className="text-center text-xs font-semibold text-caught bg-caught/10 border border-caught/30 py-1.5 rounded-md flex items-center justify-center gap-1.5 animate-fade-in">
+                  <CheckCircle2 className="h-4 w-4 text-caught" /> Signals Evaluated Live!
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Right Column: AI Insights & Recommendation (8 Cols) */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className={`lg:col-span-8 space-y-6 transition-all duration-300 ${analyzing ? 'opacity-60 scale-[0.995]' : 'opacity-100 scale-100'}`}>
           {aiResult ? (
             <>
               {/* 3 Diagnosis & Prediction Cards */}
@@ -444,7 +466,7 @@ export default function DecisionCenter({ preselectedCheckout }) {
               </div>
 
               {/* AI Recommendation: The Next Best Action */}
-              <div className="relative overflow-hidden rounded-lg 950 border-2 border-signal/40/50 p-6 sm:p-8">
+              <div className="relative overflow-hidden rounded-lg bg-surface border-2 border-signal/40 p-6 sm:p-8 shadow-xl">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-signal/15 border border-signal/30 text-signal text-xs font-bold mb-3">
@@ -500,9 +522,9 @@ export default function DecisionCenter({ preselectedCheckout }) {
                   <button
                     onClick={handleExecuteRecovery}
                     disabled={simulating}
-                    className="flex items-center gap-2 px-6 py-3 rounded-lg 500 500 hover:400 hover: text-ink font-semibold text-sm transition-all cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-2 px-6 py-3 rounded-md bg-signal hover:bg-signal/85 text-fg font-bold text-xs uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 shadow-lg shadow-signal/25 active:scale-95"
                   >
-                    <Send className="h-4 w-4" />
+                    <Send className={`h-4 w-4 ${simulating ? 'animate-bounce' : ''}`} />
                     <span>{simulating ? 'Simulating Conversion...' : 'EXECUTE RECOVERY INTERVENTION'}</span>
                   </button>
                 </div>

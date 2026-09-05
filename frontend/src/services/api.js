@@ -120,7 +120,12 @@ export const apiService = {
   listInterventions: async (params = {}) => safeFetch(() => api.get('/interventions', { params }), mockData.abandonedCheckouts),
   executeIntervention: async (interventionId, payload) => safeFetch(
     () => api.post(`/interventions/${interventionId}/execute`, payload),
-    { success: true, message: 'Intervention dispatched successfully via WhatsApp', status: 'CONVERTED' }
+    { 
+      success: true, 
+      message: `Intervention (${(payload?.action || 'ACTION').replace('_', ' ')}) dispatched via ${payload?.channel || 'WHATSAPP'} — Customer converted!`, 
+      status: 'CONVERTED',
+      order_value: payload?.cart_value || 80000
+    }
   ),
 
   // Pillar 2: Revenue Protection
