@@ -30,23 +30,19 @@ import {
 } from 'recharts';
 import apiService from '../services/api';
 import { formatCurrency } from '../components/ui/index.jsx';
+import { customersList } from '../services/customerData.js';
 
-const DEMO_CUSTOMERS = [
-  { id: 'DEMO_CUST_RAHUL', name: 'Rahul Sharma (VIP · Shipping Fee Shock)' },
-  { id: 'DEMO_CUST_PRIYA', name: 'Priya Patel (UPI Failure Dropoff)' },
-  { id: 'DEMO_CUST_AMAN', name: 'Aman Verma (Price Sensitive · Coupon Hunting)' },
-  { id: 'DEMO_CUST_RAVI', name: 'Ravi Kumar (Checkout JS Tech Errors)' },
-  { id: 'DEMO_CUST_NEHA', name: 'Neha Gupta (Ultra High-Value Luxury VIP)' },
-  { id: 'DEMO_CUST_ANANYA', name: 'Ananya Roy (High Return Risk · Apparel)' },
-  { id: 'DEMO_CUST_VIKRAM', name: 'Vikram Singh (Tier-3 COD RTO Risk)' },
-  { id: 'DEMO_CUST_KABIR', name: 'Kabir Mehta (Suspicious Velocity Anomaly)' }
-];
-
-export default function Customer360({ onNavigateToDecision }) {
-  const [selectedCustId, setSelectedCustId] = useState('DEMO_CUST_RAHUL');
+export default function Customer360({ onNavigateToDecision, initialCustomerId }) {
+  const [selectedCustId, setSelectedCustId] = useState(initialCustomerId || 'DEMO_CUST_RAHUL');
   const [loading, setLoading] = useState(true);
   const [customerData, setCustomerData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    if (initialCustomerId) {
+      setSelectedCustId(initialCustomerId);
+    }
+  }, [initialCustomerId]);
 
   useEffect(() => {
     fetchCustomer360(selectedCustId);
@@ -64,17 +60,18 @@ export default function Customer360({ onNavigateToDecision }) {
     }
   };
 
-  const profile = customerData?.profile || {};
+  const profile = customerData?.profile || customerData || {};
   const risk = customerData?.unified_revenue_risk || {};
+  const riskComponents = risk.components || risk;
   const nba = customerData?.next_best_action || {};
   const history = customerData?.history || {};
 
   const radarData = [
-    { subject: 'Abandonment', A: risk.abandonment_risk || 40, fullMark: 100 },
-    { subject: 'Return Risk', A: risk.return_risk || 30, fullMark: 100 },
-    { subject: 'RTO Risk', A: risk.rto_risk || 20, fullMark: 100 },
-    { subject: 'Fraud / Velocity', A: risk.fraud_risk || 15, fullMark: 100 },
-    { subject: 'Sentiment Risk', A: risk.sentiment_friction_risk || 25, fullMark: 100 },
+    { subject: 'Abandonment', A: riskComponents.abandonment_risk ?? 40, fullMark: 100 },
+    { subject: 'Return Risk', A: riskComponents.return_risk ?? 30, fullMark: 100 },
+    { subject: 'RTO Risk', A: riskComponents.rto_risk ?? 20, fullMark: 100 },
+    { subject: 'Fraud / Velocity', A: riskComponents.fraud_risk ?? 15, fullMark: 100 },
+    { subject: 'Sentiment Risk', A: riskComponents.cx_friction_risk ?? riskComponents.sentiment_friction_risk ?? 25, fullMark: 100 },
   ];
 
   return (
@@ -104,10 +101,12 @@ export default function Customer360({ onNavigateToDecision }) {
           <select
             value={selectedCustId}
             onChange={(e) => setSelectedCustId(e.target.value)}
-            className="px-3 py-2 bg-sunken border border-line rounded-sm text-xs text-fg focus:outline-none focus:border-signal/40 cursor-pointer"
+            className="px-3 py-2 bg-sunken border border-line rounded-sm text-xs text-fg focus:outline-none focus:border-signal/40 cursor-pointer max-w-xs truncate"
           >
-            {DEMO_CUSTOMERS.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+            {customersList.map((c) => (
+              <option key={c.customer_id} value={c.customer_id}>
+                {c.name || c.customer_id} ({c.customer_segment || c.segment || 'Customer'} · {c.location || 'India'})
+              </option>
             ))}
           </select>
         </div>

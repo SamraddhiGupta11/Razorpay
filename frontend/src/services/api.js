@@ -245,9 +245,37 @@ export const apiService = {
   ),
 
   // Customer Intelligence & Customer 360
-  getCustomers: async (params = {}) => safeFetch(() => api.get('/customers', { params }), [mockData.customer360]),
-  getCustomerProfile: async (customerId) => safeFetch(() => api.get(`/customers/${customerId}`), mockData.customer360),
-  getCustomer360: async (customerId) => safeFetch(() => api.get(`/customer/${customerId}`), mockData.customer360),
+  getCustomers: async (params = {}) => safeFetch(
+    () => api.get('/customers', { params }),
+    () => {
+      let list = mockData.customersList || [mockData.customer360];
+      if (params?.segment) {
+        list = list.filter((c) => (c.customer_segment || c.segment || '').toLowerCase() === params.segment.toLowerCase());
+      }
+      if (params?.search) {
+        const q = params.search.toLowerCase().trim();
+        list = list.filter((c) =>
+          (c.customer_id || '').toLowerCase().includes(q) ||
+          (c.name || '').toLowerCase().includes(q) ||
+          (c.customer_segment || c.segment || '').toLowerCase().includes(q) ||
+          (c.location || '').toLowerCase().includes(q) ||
+          (c.email || '').toLowerCase().includes(q)
+        );
+      }
+      if (params?.limit) {
+        list = list.slice(0, params.limit);
+      }
+      return list;
+    }
+  ),
+  getCustomerProfile: async (customerId) => safeFetch(
+    () => api.get(`/customers/${customerId}`),
+    () => (mockData.getCustomer360Data ? mockData.getCustomer360Data(customerId) : mockData.customer360)
+  ),
+  getCustomer360: async (customerId) => safeFetch(
+    () => api.get(`/customer/${customerId}`),
+    () => (mockData.getCustomer360Data ? mockData.getCustomer360Data(customerId) : mockData.customer360)
+  ),
 
   // Unified Decision Engine (Next Best Action)
   getNextBestAction: async (payload) => safeFetch(() => api.post('/decision/next-best-action', payload), mockData.demoScenarios[0]),

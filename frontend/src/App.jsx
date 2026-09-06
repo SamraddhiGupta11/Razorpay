@@ -73,6 +73,18 @@ export default function App() {
     [openDecisionFor]
   );
 
+  const [selectedCustomerIdFor360, setSelectedCustomerIdFor360] = useState('DEMO_CUST_RAHUL');
+
+  const handleNavigateToCustomer360 = useCallback(
+    (customerId) => {
+      if (customerId) {
+        setSelectedCustomerIdFor360(customerId);
+      }
+      navigate('customer-360');
+    },
+    [navigate]
+  );
+
   const PAGES = {
     dashboard: <Dashboard onNavigate={navigate} />,
     'decision-center': <DecisionCenter preselectedCheckout={selectedCheckout} />,
@@ -80,8 +92,15 @@ export default function App() {
     opportunities: <Opportunities onSelectCart={openDecisionFor} />,
     protection: <ProtectionCenter onSelectOrderForDecision={openDecisionFor} />,
     voc: <VoiceOfCustomer />,
-    'customer-360': <Customer360 onNavigateToDecision={openDecisionFor} />,
-    customers: <Customers />,
+    'customer-360': (
+      <Customer360
+        onNavigateToDecision={openDecisionFor}
+        initialCustomerId={selectedCustomerIdFor360}
+      />
+    ),
+    customers: (
+      <Customers onNavigateToCustomer360={handleNavigateToCustomer360} />
+    ),
     analytics: <Analytics />,
     leakage: <RevenueLeakage onNavigate={navigate} />,
     interventions: <Interventions />,
@@ -91,7 +110,7 @@ export default function App() {
     demo: (
       <DemoScenarios
         onSelectScenario={handleSelectScenario}
-        onNavigateToCustomer360={() => navigate('customer-360')}
+        onNavigateToCustomer360={(custId) => handleNavigateToCustomer360(custId)}
       />
     ),
   };

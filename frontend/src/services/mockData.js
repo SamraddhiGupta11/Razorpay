@@ -1,4 +1,6 @@
 // Realistic offline / GitHub Pages fallback dataset matching PostgreSQL 18 schemas
+import { customersList, customer360Map, getCustomer360Data } from './customerData.js';
+
 export const mockData = {
   health: {
     status: 'healthy',
@@ -257,15 +259,31 @@ export const mockData = {
     }
   ],
 
+  customersList,
+  customer360Map,
+  getCustomer360Data,
+
   customer360: {
+    ...customersList[0],
     customer_id: 'DEMO_CUST_RAHUL',
     name: 'Rahul Sharma',
-    email: 'rahul.sharma@example.com',
-    phone: '+91 98201 54321',
+    email: 'rahul.sharma@example.in',
+    phone: '+91 98201 12345',
     city: 'Mumbai',
+    location: 'Mumbai, Maharashtra',
+    customer_segment: 'VIP',
     segment: 'VIP',
-    lifetime_value: 285000.0,
+    is_returning: true,
+    previous_orders: 14,
+    previous_abandonments: 1,
     order_count: 14,
+    lifetime_orders: 16,
+    lifetime_value: 285000.0,
+    lifetime_cart_value: 376200.0,
+    average_order_value: 20357.0,
+    total_sessions: 18,
+    total_recovered_spent: 108300.0,
+    total_abandonments_recorded: 1,
     risk_score: 28,
     metrics: {
       abandonment_rate: '21.4%',
