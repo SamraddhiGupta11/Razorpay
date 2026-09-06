@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-03T11:10:12.336008",
+  "timestamp": "2026-09-06T03:34:04.781173",
   "dataset": "checkout_records_100k.csv (Synthetic)",
   "synthetic_disclosure": "Trained on calibrated synthetic telemetry modeled on e-commerce transaction dynamics with strict zero-leakage temporal separation.",
   "models": {
@@ -124,20 +124,20 @@
     "model_3_return_risk": {
       "selected_algorithm": "HistGradientBoosting",
       "best_metrics": {
-        "accuracy": 0.5643,
-        "precision": 0.1224,
-        "recall": 0.4416,
-        "f1_score": 0.1917,
-        "roc_auc": 0.5146,
-        "pr_auc": 0.129,
+        "accuracy": 0.4927,
+        "precision": 0.1161,
+        "recall": 0.5043,
+        "f1_score": 0.1887,
+        "roc_auc": 0.5044,
+        "pr_auc": 0.1215,
         "confusion_matrix": [
           [
-            1538,
-            1111
+            1301,
+            1348
           ],
           [
-            196,
-            155
+            174,
+            177
           ]
         ]
       },
@@ -168,16 +168,16 @@
     "model_4_rto_risk": {
       "selected_algorithm": "HistGradientBoosting",
       "best_metrics": {
-        "accuracy": 0.9667,
-        "precision": 0.8947,
+        "accuracy": 0.967,
+        "precision": 0.9027,
         "recall": 0.5368,
-        "f1_score": 0.6711,
-        "roc_auc": 0.9753,
-        "pr_auc": 0.7921,
+        "f1_score": 0.6733,
+        "roc_auc": 0.9746,
+        "pr_auc": 0.7863,
         "confusion_matrix": [
           [
-            2798,
-            12
+            2799,
+            11
           ],
           [
             88,
@@ -278,5 +278,5 @@
       "percentage_weights"
     ]
   },
-  "updated_at": "2026-09-04T13:17:05.185792"
+  "updated_at": "2026-09-06T03:34:48.607676"
 }
