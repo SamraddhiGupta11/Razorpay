@@ -20,9 +20,17 @@ def health_check(db: Session = Depends(get_db)):
     models_loaded = bool(ml_service.is_loaded)
     is_healthy = db_connected and models_loaded
 
+    db_name = "payrevive"
+    try:
+        if db.bind and db.bind.url and db.bind.url.database:
+            db_name = db.bind.url.database
+    except Exception:
+        pass
+
     return {
         "status": "healthy" if is_healthy else "degraded",
         "database": "connected" if db_connected else "disconnected",
+        "database_name": db_name,
         "models": "loaded" if models_loaded else "pending",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,

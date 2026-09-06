@@ -16,11 +16,11 @@ if (-not (Test-Path $pgData)) {
 
 # Create database if not exists
 Start-Sleep -Seconds 2
-$dbExists = & "$pgBin\psql.exe" -p 5433 -U postgres -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='reviveai'"
+$dbExists = & "$pgBin\psql.exe" -p 5433 -U postgres -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='payrevive'"
 if ($dbExists -ne "1") {
-    Write-Host "Creating database 'reviveai'..." -ForegroundColor Cyan
-    & "$pgBin\createdb.exe" -p 5433 -U postgres reviveai
-    Write-Host "Database 'reviveai' created successfully." -ForegroundColor Green
+    Write-Host "Creating database 'payrevive'..." -ForegroundColor Cyan
+    & "$pgBin\createdb.exe" -p 5433 -U postgres payrevive
+    Write-Host "Database 'payrevive' created successfully." -ForegroundColor Green
 } else {
-    Write-Host "Database 'reviveai' already exists." -ForegroundColor Green
+    Write-Host "Database 'payrevive' already exists." -ForegroundColor Green
 }

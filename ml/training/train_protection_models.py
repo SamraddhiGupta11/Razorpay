@@ -39,7 +39,7 @@ from ml.preprocessing.features import (
     assert_no_leakage
 )
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/reviveai")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/payrevive")
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "..", "models")
 os.makedirs(MODELS_DIR, exist_ok=True)
 

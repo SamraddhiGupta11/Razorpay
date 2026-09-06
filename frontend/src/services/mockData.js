@@ -5,6 +5,7 @@ export const mockData = {
   health: {
     status: 'healthy',
     database: 'connected',
+    database_name: 'payrevive',
     models_loaded: 5,
     environment: 'demo-mode'
   },

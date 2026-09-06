@@ -6,7 +6,7 @@ services:
     container_name: payrevive_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: reviveai
+      POSTGRES_DB: payrevive
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
     ports:
@@ -22,7 +22,7 @@ services:
     container_name: payrevive_backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/reviveai
+      DATABASE_URL: postgresql://postgres:postgrespassword@postgres:5432/payrevive
       ENVIRONMENT: production
       MODEL_PATH: /app/ml/models/
     ports:

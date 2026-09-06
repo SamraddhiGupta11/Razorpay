@@ -171,7 +171,7 @@ export default function Settings() {
           <div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-fg-dim">PostgreSQL Database</span>
             <div className="text-lg font-semibold text-fg mt-1">
-              Port 5433 / reviveai
+              Port 5433 / {health?.database_name || 'payrevive'}
             </div>
             <div className="text-[11px] text-caught font-semibold flex items-center gap-1 mt-0.5">
               <CheckCircle2 className="h-3.5 w-3.5" />
