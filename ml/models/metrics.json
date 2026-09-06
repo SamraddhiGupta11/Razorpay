@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-06T03:34:04.781173",
+  "timestamp": "2026-09-06T03:57:48.460899",
   "dataset": "checkout_records_100k.csv (Synthetic)",
   "synthetic_disclosure": "Trained on calibrated synthetic telemetry modeled on e-commerce transaction dynamics with strict zero-leakage temporal separation.",
   "models": {
@@ -7,115 +7,115 @@
       "selected_algorithm": "HistGradientBoosting",
       "best_metrics": {
         "model_name": "HistGradientBoosting",
-        "accuracy": 0.7554,
-        "precision": 0.7435,
-        "recall": 0.4402,
-        "f1_score": 0.553,
-        "roc_auc": 0.7767,
+        "accuracy": 0.8789,
+        "precision": 0.8913,
+        "recall": 0.7783,
+        "f1_score": 0.831,
+        "roc_auc": 0.942,
         "confusion_matrix": [
           [
-            12082,
-            1044
+            11624,
+            726
           ],
           [
-            3848,
-            3026
+            1696,
+            5954
           ]
         ]
       },
       "comparison": {
         "HistGradientBoosting": {
           "model_name": "HistGradientBoosting",
-          "accuracy": 0.7554,
-          "precision": 0.7435,
-          "recall": 0.4402,
-          "f1_score": 0.553,
-          "roc_auc": 0.7767,
+          "accuracy": 0.8789,
+          "precision": 0.8913,
+          "recall": 0.7783,
+          "f1_score": 0.831,
+          "roc_auc": 0.942,
           "confusion_matrix": [
             [
-              12082,
-              1044
+              11624,
+              726
             ],
             [
-              3848,
-              3026
+              1696,
+              5954
             ]
           ]
         },
         "RandomForest": {
           "model_name": "RandomForest",
-          "accuracy": 0.7546,
-          "precision": 0.744,
-          "recall": 0.436,
-          "f1_score": 0.5498,
-          "roc_auc": 0.7728,
+          "accuracy": 0.8782,
+          "precision": 0.8983,
+          "recall": 0.7686,
+          "f1_score": 0.8284,
+          "roc_auc": 0.9404,
           "confusion_matrix": [
             [
-              12095,
-              1031
+              11684,
+              666
             ],
             [
-              3877,
-              2997
+              1770,
+              5880
             ]
           ]
         }
       }
     },
     "model_2_recovery": {
-      "selected_algorithm": "RandomForest",
+      "selected_algorithm": "HistGradientBoosting",
       "best_metrics": {
-        "model_name": "RandomForest",
-        "accuracy": 0.5911,
-        "precision": 0.5941,
-        "recall": 0.6872,
-        "f1_score": 0.6372,
-        "roc_auc": 0.6282,
+        "model_name": "HistGradientBoosting",
+        "accuracy": 0.8927,
+        "precision": 0.9027,
+        "recall": 0.8599,
+        "f1_score": 0.8808,
+        "roc_auc": 0.9623,
         "confusion_matrix": [
           [
-            1594,
-            1687
+            3796,
+            327
           ],
           [
-            1124,
-            2469
+            494,
+            3033
           ]
         ]
       },
       "comparison": {
         "HistGradientBoosting": {
           "model_name": "HistGradientBoosting",
-          "accuracy": 0.5906,
-          "precision": 0.5935,
-          "recall": 0.6883,
-          "f1_score": 0.6374,
-          "roc_auc": 0.626,
+          "accuracy": 0.8927,
+          "precision": 0.9027,
+          "recall": 0.8599,
+          "f1_score": 0.8808,
+          "roc_auc": 0.9623,
           "confusion_matrix": [
             [
-              1587,
-              1694
+              3796,
+              327
             ],
             [
-              1120,
-              2473
+              494,
+              3033
             ]
           ]
         },
         "RandomForest": {
           "model_name": "RandomForest",
-          "accuracy": 0.5911,
-          "precision": 0.5941,
-          "recall": 0.6872,
-          "f1_score": 0.6372,
-          "roc_auc": 0.6282,
+          "accuracy": 0.8912,
+          "precision": 0.9016,
+          "recall": 0.8577,
+          "f1_score": 0.8791,
+          "roc_auc": 0.96,
           "confusion_matrix": [
             [
-              1594,
-              1687
+              3793,
+              330
             ],
             [
-              1124,
-              2469
+              502,
+              3025
             ]
           ]
         }
@@ -278,5 +278,5 @@
       "percentage_weights"
     ]
   },
-  "updated_at": "2026-09-06T03:34:48.607676"
+  "updated_at": "2026-09-06T03:58:04.974521"
 }

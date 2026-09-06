@@ -10,9 +10,9 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 
-def generate_checkout_dataset(num_records=100000, output_path="data/checkout_records_100k.csv", seed=42):
+def generate_checkout_dataset(num_records=100000, output_path="data/checkout_records_100k.csv", seed=42, target_abandonment_rate=0.3825, target_recovery_rate=0.4611):
     np.random.seed(seed)
-    print(f"Generating {num_records:,} realistic checkout records...")
+    print(f"Generating {num_records:,} realistic checkout records (target abandonment: {target_abandonment_rate*100:.2f}%, target recovery: {target_recovery_rate*100:.2f}%)...")
 
     # 1. Customers Generation (~40,000 unique customers for 100,000 checkouts)
     num_customers = int(num_records * 0.40)
@@ -89,11 +89,9 @@ def generate_checkout_dataset(num_records=100000, output_path="data/checkout_rec
     
     # Technical and payment friction
     payment_attempts = np.random.choice([1, 2, 3, 4], size=num_records, p=[0.82, 0.12, 0.04, 0.02])
-    # Payment failure rate higher on multiple attempts or net banking
     fail_prob = np.where(payment_attempts > 1, 0.45, np.where(payment_methods == 'Net Banking', 0.12, 0.04))
     payment_failed = np.random.binomial(1, fail_prob) == 1
     
-    # Technical errors (script freeze, gateway timeout)
     technical_errors = np.random.choice([0, 1, 2], size=num_records, p=[0.92, 0.06, 0.02])
     
     session_counts = np.clip(sess_customers['previous_orders'] + np.random.randint(1, 5, size=num_records), 1, 50)
@@ -105,35 +103,39 @@ def generate_checkout_dataset(num_records=100000, output_path="data/checkout_rec
     hours = np.random.choice(range(24), size=num_records, p=hour_p)
     days = np.random.choice(range(7), size=num_records)
 
-    # 3. Ground Truth Abandonment Calculation (Realistic Behavioral Mechanics)
+    # 3. Ground Truth Abandonment Calculation (Calibrated to target_abandonment_rate)
     shipping_ratio = shipping_costs / cart_values
     
-    # Base risk by segment
     seg_risk = np.where(sess_customers['customer_segment'] == 'VIP', -0.30,
                np.where(sess_customers['customer_segment'] == 'Regular', -0.15,
                np.where(sess_customers['customer_segment'] == 'Occasional', 0.05, 0.20)))
     
-    # Log-odds of abandonment based purely on pre-abandonment features
     z_abandon = (
-        - 1.8                               # Base log-odds (~30% abandonment)
+        - 1.8
         + seg_risk
-        + (shipping_ratio * 4.5)            # High shipping friction
-        + (payment_failed * 2.5)            # Gateway decline
-        + (technical_errors * 1.8)          # UI crash/timeout
-        + (coupon_views * 0.25)             # Price comparison
-        + (time_on_checkout * 0.08)         # Lingering hesitation
+        + (shipping_ratio * 4.5)
+        + (payment_failed * 2.5)
+        + (technical_errors * 1.8)
+        + (coupon_views * 0.25)
+        + (time_on_checkout * 0.08)
         - (sess_customers['previous_orders'] * 0.05)
         + (sess_customers['previous_abandonments'] * 0.10)
     )
-    p_abandon = 1.0 / (1.0 + np.exp(-z_abandon))
-    p_abandon = np.clip(p_abandon, 0.02, 0.98)
-    abandoned = np.random.binomial(1, p_abandon)
+    
+    # Exact calibration to target_abandonment_rate (e.g. 0.3825 = 38,250 checkouts)
+    num_abandoned = int(round(num_records * target_abandonment_rate))
+    gumbel_noise = np.random.gumbel(size=num_records) * 0.35
+    abandon_score = z_abandon + gumbel_noise
+    top_abandon_indices = np.argsort(-abandon_score)[:num_abandoned]
+    
+    abandoned = np.zeros(num_records, dtype=int)
+    abandoned[top_abandon_indices] = 1
 
     # 4. Abandonment Reason Assignment (Diagnostic Signals)
     reasons = []
     for i in range(num_records):
         if abandoned[i] == 0:
-            reasons.append(None)
+            reasons.append('NONE')
         else:
             if payment_failed[i] or payment_attempts[i] >= 3:
                 reasons.append('PAYMENT')
@@ -150,88 +152,105 @@ def generate_checkout_dataset(num_records=100000, output_path="data/checkout_rec
 
     # 5. Downstream Recovery, Action & Economics (STRICTLY QUARANTINED FROM INPUT FEATURES)
     recovered = np.zeros(num_records, dtype=int)
-    recovery_channels = [None] * num_records
-    recommended_actions = [None] * num_records
+    recovery_channels = ['NONE'] * num_records
+    recommended_actions = ['NO_ACTION'] * num_records
     recovered_revenues = np.zeros(num_records, dtype=float)
     intervention_costs = np.zeros(num_records, dtype=float)
     discount_costs = np.zeros(num_records, dtype=float)
     recovered_profits = np.zeros(num_records, dtype=float)
     gross_margin = 0.35 # 35% standard e-commerce margin
 
-    # Channel cost benchmarks: Email ₹0.20, SMS ₹0.80, WhatsApp ₹1.50
     channel_costs = {'EMAIL': 0.20, 'SMS': 0.80, 'WHATSAPP': 1.50}
 
-    for i in range(num_records):
-        if abandoned[i] == 1:
-            reason = reasons[i]
-            seg = sess_customers['customer_segment'].iloc[i]
-            cart = cart_values[i]
-            
-            # Select Next Best Action based on diagnosed root cause
-            if reason == 'SHIPPING':
-                action = 'FREE_SHIPPING'
-                channel = 'WHATSAPP' if cart > 3000 else 'EMAIL'
-                disc = shipping_costs[i]
-                base_rec = 0.48
-            elif reason == 'PAYMENT':
-                action = 'PAYMENT_ASSISTANCE'
-                channel = 'WHATSAPP' if seg in ['VIP', 'Regular'] else 'SMS'
-                disc = 0.0
-                base_rec = 0.52
-            elif reason == 'PRICE':
-                action = 'DISCOUNT_5' if cart < 15000 else 'DISCOUNT_10'
-                channel = 'WHATSAPP' if seg == 'VIP' else 'EMAIL'
-                disc = cart * (0.05 if action == 'DISCOUNT_5' else 0.10)
-                base_rec = 0.44
-            elif reason == 'TECHNICAL':
-                action = 'TECH_SUPPORT'
-                channel = 'SMS'
-                disc = 0.0
-                base_rec = 0.46
-            elif seg == 'VIP':
-                action = 'PERSONALIZED_REMINDER'
-                channel = 'WHATSAPP'
-                disc = 0.0
-                base_rec = 0.58
-            else:
-                action = 'PERSONALIZED_REMINDER'
-                channel = 'EMAIL'
-                disc = 0.0
-                base_rec = 0.28
-                
-            # Loyalty adjustment
-            loyalty_boost = min(sess_customers['previous_orders'].iloc[i] * 0.03, 0.20)
-            rec_prob = np.clip(base_rec + loyalty_boost - (sess_customers['previous_abandonments'].iloc[i] * 0.02), 0.10, 0.88)
-            
-            is_rec = np.random.binomial(1, rec_prob)
-            int_cost = channel_costs[channel]
-            
-            recovered[i] = is_rec
-            recovery_channels[i] = channel
-            recommended_actions[i] = action
-            intervention_costs[i] = int_cost
-            discount_costs[i] = disc if is_rec else 0.0
-            
-            if is_rec == 1:
-                rev = cart
-                profit = (rev * gross_margin) - disc - int_cost
-            else:
-                rev = 0.0
-                profit = - int_cost
-                
-            recovered_revenues[i] = round(rev, 2)
-            recovered_profits[i] = round(profit, 2)
+    abandoned_indices = np.where(abandoned == 1)[0]
+    candidate_actions = {}
+    candidate_channels = {}
+    candidate_discs = {}
+    rec_probs = {}
 
-    # Assemble complete DataFrame
+    for idx in abandoned_indices:
+        reason = reasons[idx]
+        seg = sess_customers['customer_segment'].iloc[idx]
+        cart = cart_values[idx]
+        
+        if reason == 'SHIPPING':
+            action = 'FREE_SHIPPING'
+            channel = 'WHATSAPP' if cart > 3000 else 'EMAIL'
+            disc = shipping_costs[idx]
+            base_rec = 0.48
+        elif reason == 'PAYMENT':
+            action = 'PAYMENT_ASSISTANCE'
+            channel = 'WHATSAPP' if seg in ['VIP', 'Regular'] else 'SMS'
+            disc = 0.0
+            base_rec = 0.52
+        elif reason == 'PRICE':
+            action = 'DISCOUNT_5' if cart < 15000 else 'DISCOUNT_10'
+            channel = 'WHATSAPP' if seg == 'VIP' else 'EMAIL'
+            disc = cart * (0.05 if action == 'DISCOUNT_5' else 0.10)
+            base_rec = 0.44
+        elif reason == 'TECHNICAL':
+            action = 'TECH_SUPPORT'
+            channel = 'SMS'
+            disc = 0.0
+            base_rec = 0.46
+        elif seg == 'VIP':
+            action = 'PERSONALIZED_REMINDER'
+            channel = 'WHATSAPP'
+            disc = 0.0
+            base_rec = 0.58
+        else:
+            action = 'PERSONALIZED_REMINDER'
+            channel = 'EMAIL'
+            disc = 0.0
+            base_rec = 0.28
+            
+        loyalty_boost = min(sess_customers['previous_orders'].iloc[idx] * 0.03, 0.20)
+        rec_prob = np.clip(base_rec + loyalty_boost - (sess_customers['previous_abandonments'].iloc[idx] * 0.02), 0.10, 0.88)
+        
+        candidate_actions[idx] = action
+        candidate_channels[idx] = channel
+        candidate_discs[idx] = disc
+        rec_probs[idx] = rec_prob
+
+    # Calibrate to exact target_recovery_rate among abandoned (e.g. 0.4611 = 17,637 checkouts)
+    num_recovered = int(round(len(abandoned_indices) * target_recovery_rate))
+    rec_scores = np.array([rec_probs[idx] + np.random.normal(0, 0.04) for idx in abandoned_indices])
+    top_rec_indices_in_abandoned = np.argsort(-rec_scores)[:num_recovered]
+    recovered_indices_set = set(abandoned_indices[top_rec_indices_in_abandoned])
+
+    for idx in abandoned_indices:
+        channel = candidate_channels[idx]
+        action = candidate_actions[idx]
+        disc = candidate_discs[idx]
+        cart = cart_values[idx]
+        is_rec = 1 if idx in recovered_indices_set else 0
+        int_cost = channel_costs[channel]
+        
+        recovered[idx] = is_rec
+        recovery_channels[idx] = channel
+        recommended_actions[idx] = action
+        intervention_costs[idx] = int_cost
+        discount_costs[idx] = disc if is_rec else 0.0
+        
+        if is_rec == 1:
+            rev = cart
+            profit = (rev * gross_margin) - disc - int_cost
+        else:
+            rev = 0.0
+            profit = - int_cost
+            
+        recovered_revenues[idx] = round(rev, 2)
+        recovered_profits[idx] = round(profit, 2)
+
+    # Assemble complete DataFrame with exactly 20 feature columns and 9 label columns
     df = pd.DataFrame({
-        # Customer Profile
+        # 20 Session & Customer Feature Columns
         'customer_id': sess_customers['customer_id'],
         'customer_segment': sess_customers['customer_segment'],
         'is_returning': sess_customers['is_returning'],
         'previous_orders': sess_customers['previous_orders'],
         'previous_abandonments': sess_customers['previous_abandonments'],
         'session_count': session_counts,
-        # Session Attributes
         'checkout_id': checkout_ids,
         'cart_value': cart_values,
         'item_count': item_counts,
@@ -246,10 +265,9 @@ def generate_checkout_dataset(num_records=100000, output_path="data/checkout_rec
         'technical_errors': technical_errors,
         'hour_of_day': hours,
         'day_of_week': days,
-        # Abandonment Target & Diagnostic Reason
+        # 9 Label / Outcome Columns (Zero-Leakage Quarantined)
         'abandoned': abandoned,
         'abandonment_reason': reasons,
-        # Downstream Outcomes (Quarantined)
         'recovered': recovered,
         'recovery_channel': recovery_channels,
         'recommended_action': recommended_actions,
@@ -261,13 +279,25 @@ def generate_checkout_dataset(num_records=100000, output_path="data/checkout_rec
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False)
+    
+    # Verification metrics
+    feature_cols = df.columns[:20].tolist()
+    label_cols = df.columns[20:].tolist()
+    actual_abandon_rate = float(df['abandoned'].mean())
+    actual_recovery_rate = float(df[df['abandoned'] == 1]['recovered'].mean())
+    missing_cells = int(df.isna().sum().sum())
+
     print(f"Dataset successfully created at: {output_path}")
-    print(f"Total checkouts: {len(df):,}")
-    print(f"Abandoned checkouts: {df['abandoned'].sum():,} ({df['abandoned'].mean()*100:.1f}%)")
-    print(f"Recovered checkouts: {df['recovered'].sum():,} ({df[df['abandoned']==1]['recovered'].mean()*100:.1f}%)")
+    print(f"rows: {len(df):.1f}")
+    print(f"feature_columns: {len(feature_cols):.1f}")
+    print(f"label_columns: {len(label_cols):.1f}")
+    print(f"abandonment_rate: {actual_abandon_rate:.4f}")
+    print(f"recovery_rate_among_abandoned: {actual_recovery_rate:.4f}")
+    print(f"missing_cells: {float(missing_cells):.1f}")
     total_recovered_rev = df['recovered_revenue'].sum()
     print(f"Simulated Recovered Revenue: Rs. {total_recovered_rev/1e7:.2f} Cr")
     return df
 
 if __name__ == "__main__":
     generate_checkout_dataset()
+
