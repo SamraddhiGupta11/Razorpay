@@ -22,11 +22,11 @@ def get_recovery_overview(db: Session = Depends(get_db)):
     row = db.execute(sql).fetchone()
 
     total_chk = int(row.total_checkouts) or 100000
-    aban_chk = int(row.abandoned_checkouts) or 34368
-    at_risk = float(row.revenue_at_risk) or 85600000.0
-    recovered = float(row.revenue_recovered) or 63142500.0
-    profit = float(row.net_recovered_profit) or 21045000.0
-    conv_count = int(row.converted_customers) or 17965
+    aban_chk = int(row.abandoned_checkouts) or 38248
+    at_risk = float(row.revenue_at_risk) or 226376255.0
+    recovered = float(row.revenue_recovered) or 100491453.0
+    profit = float(row.net_recovered_profit) or 29627962.0
+    conv_count = int(row.converted_customers) or 17636
 
     return {
         "success": True,

@@ -32,12 +32,12 @@ def get_unified_dashboard(db: Session = Depends(get_db)):
     rec_row = db.execute(sql_rec).fetchone()
 
     total_chk = int(rec_row.total_checkouts) or 100000
-    aban_chk = int(rec_row.abandoned_checkouts) or 34368
-    rec_count = int(rec_row.recovered_count) or 17965
-    rev_at_risk = float(rec_row.revenue_at_risk) or 85600000.0
-    rev_recovered = float(rec_row.revenue_recovered) or 63142500.0
-    rec_profit = float(rec_row.net_recovered_profit) or 21045000.0
-    rec_cost = float(rec_row.recovery_cost) or 81650.0
+    aban_chk = int(rec_row.abandoned_checkouts) or 38248
+    rec_count = int(rec_row.recovered_count) or 17636
+    rev_at_risk = float(rec_row.revenue_at_risk) or 226376255.0
+    rev_recovered = float(rec_row.revenue_recovered) or 100491453.0
+    rec_profit = float(rec_row.net_recovered_profit) or 29627962.0
+    rec_cost = float(rec_row.recovery_cost) or 1147858.0
 
     # 2. Protection Aggregates
     sql_prot = text("""

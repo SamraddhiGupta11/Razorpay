@@ -9,44 +9,44 @@ export const mockData = {
 
   dashboardSummary: {
     total_checkouts: 100000,
-    abandoned_checkouts: 34368,
-    abandonment_rate_pct: 34.37,
-    revenue_at_risk: 85600000.0,
-    revenue_recovered: 63142500.0,
-    net_recovered_profit: 21045000.0,
-    recovery_rate_pct: 52.27,
-    total_intervention_cost: 81650.0,
-    overall_roi_pct: 25682.0
+    abandoned_checkouts: 38248,
+    abandonment_rate_pct: 38.25,
+    revenue_at_risk: 226376255.0,
+    revenue_recovered: 100491453.0,
+    net_recovered_profit: 29627962.0,
+    recovery_rate_pct: 46.11,
+    total_intervention_cost: 1147858.0,
+    overall_roi_pct: 2581.15
   },
 
   dashboardCharts: {
     reasons: [
-      { reason: 'SHIPPING', count: 11200, revenue_at_risk: 28500000.0, revenue_recovered: 22100000.0, recovered_profit: 7735000.0, recovery_rate_pct: 77.5 },
-      { reason: 'PAYMENT', count: 8900, revenue_at_risk: 23100000.0, revenue_recovered: 17400000.0, recovered_profit: 6090000.0, recovery_rate_pct: 75.3 },
-      { reason: 'PRICE', count: 6800, revenue_at_risk: 16400000.0, revenue_recovered: 11800000.0, recovered_profit: 3540000.0, recovery_rate_pct: 72.0 },
-      { reason: 'TECHNICAL', count: 4200, revenue_at_risk: 10200000.0, revenue_recovered: 7500000.0, recovered_profit: 2625000.0, recovery_rate_pct: 73.5 },
-      { reason: 'HESITATION', count: 2100, revenue_at_risk: 5100000.0, revenue_recovered: 3100000.0, recovered_profit: 1085000.0, recovery_rate_pct: 60.8 },
-      { reason: 'TRUST', count: 1168, revenue_at_risk: 2300000.0, revenue_recovered: 1242500.0, recovered_profit: -30000.0, recovery_rate_pct: 54.0 }
+      { reason: 'PAYMENT', count: 10676, revenue_at_risk: 61222585.0, revenue_recovered: 25922973.0, recovered_profit: 7763844.0, recovery_rate_pct: 44.5 },
+      { reason: 'TECHNICAL', count: 7663, revenue_at_risk: 45616233.0, revenue_recovered: 18355191.0, recovered_profit: 5497766.0, recovery_rate_pct: 41.3 },
+      { reason: 'SHIPPING', count: 5703, revenue_at_risk: 17257811.0, revenue_recovered: 8157124.0, recovered_profit: 2439473.0, recovery_rate_pct: 48.1 },
+      { reason: 'HESITATION', count: 2537, revenue_at_risk: 14694926.0, revenue_recovered: 7146114.0, recovered_profit: 2140362.0, recovery_rate_pct: 49.3 },
+      { reason: 'PRICE', count: 1507, revenue_at_risk: 21571996.0, revenue_recovered: 9416499.0, recovered_profit: 2352062.0, recovery_rate_pct: 49.2 },
+      { reason: 'TRUST', count: 10162, revenue_at_risk: 66012704.0, revenue_recovered: 31493551.0, recovered_profit: 9434455.0, recovery_rate_pct: 49.0 }
     ],
     channels: [
-      { channel: 'WHATSAPP', count: 14200, recovered_revenue: 35800000.0, net_profit: 12450000.0, roi_pct: 12450.0 },
-      { channel: 'SMS', count: 9800, recovered_revenue: 16200000.0, net_profit: 5200000.0, roi_pct: 5420.0 },
-      { channel: 'EMAIL', count: 7400, recovered_revenue: 8100000.0, net_profit: 2600000.0, roi_pct: 6500.0 },
-      { channel: 'PUSH', count: 2968, recovered_revenue: 3042500.0, net_profit: 795000.0, roi_pct: 3975.0 }
+      { channel: 'WHATSAPP', count: 9605, recovered_revenue: 54465492.0, net_profit: 16046909.0, roi_pct: 5481.7 },
+      { channel: 'SMS', count: 4391, recovered_revenue: 25164912.0, net_profit: 7419923.0, roi_pct: 5727.5 },
+      { channel: 'EMAIL', count: 3640, recovered_revenue: 20861049.0, net_profit: 6161130.0, roi_pct: 6339.6 }
     ],
     segments: [
-      { segment: 'VIP', count: 6200, revenue_at_risk: 28400000.0, revenue_recovered: 23100000.0, recovery_rate_pct: 81.3 },
-      { segment: 'Regular', count: 18500, revenue_at_risk: 42100000.0, revenue_recovered: 30400000.0, recovery_rate_pct: 72.2 },
-      { segment: 'Occasional', count: 9668, revenue_at_risk: 15100000.0, revenue_recovered: 9642500.0, recovery_rate_pct: 63.9 }
+      { segment: 'Regular', count: 17014, revenue_at_risk: 100696522.0, revenue_recovered: 47752192.0, recovery_rate_pct: 48.8 },
+      { segment: 'Occasional', count: 12105, revenue_at_risk: 71402203.0, revenue_recovered: 29453865.0, recovery_rate_pct: 42.8 },
+      { segment: 'New', count: 7044, revenue_at_risk: 41188049.0, revenue_recovered: 15496775.0, recovery_rate_pct: 40.2 },
+      { segment: 'VIP', count: 2085, revenue_at_risk: 13089481.0, revenue_recovered: 7788621.0, recovery_rate_pct: 62.9 }
     ],
     timeline: [
-      { date: '2026-02-27', abandoned: 1120, recovered: 590, revenue_recovered: 2050000 },
-      { date: '2026-02-28', abandoned: 1240, recovered: 670, revenue_recovered: 2340000 },
-      { date: '2026-03-01', abandoned: 1180, recovered: 620, revenue_recovered: 2180000 },
-      { date: '2026-03-02', abandoned: 1310, recovered: 710, revenue_recovered: 2510000 },
-      { date: '2026-03-03', abandoned: 1290, recovered: 685, revenue_recovered: 2420000 },
-      { date: '2026-03-04', abandoned: 1350, recovered: 740, revenue_recovered: 2690000 },
-      { date: '2026-03-05', abandoned: 1410, recovered: 780, revenue_recovered: 2810000 }
+      { date: '2026-02-27', abandoned: 1280, recovered: 590, revenue_recovered: 3250000 },
+      { date: '2026-02-28', abandoned: 1340, recovered: 620, revenue_recovered: 3480000 },
+      { date: '2026-03-01', abandoned: 1410, recovered: 650, revenue_recovered: 3650000 },
+      { date: '2026-03-02', abandoned: 1490, recovered: 690, revenue_recovered: 3910000 },
+      { date: '2026-03-03', abandoned: 1460, recovered: 675, revenue_recovered: 3820000 },
+      { date: '2026-03-04', abandoned: 1520, recovered: 700, revenue_recovered: 3990000 },
+      { date: '2026-03-05', abandoned: 1580, recovered: 730, revenue_recovered: 4150000 }
     ]
   },
 
