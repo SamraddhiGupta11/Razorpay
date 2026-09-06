@@ -306,13 +306,7 @@ export const apiService = {
   // A/B Testing Benchmark
   getAbTesting: async () => safeFetch(
     () => api.get('/ab-testing/summary'),
-    {
-      test_name: 'AI Dynamic Intervention vs Rule-based 10% Discount',
-      test_group_lift: '+31.4%',
-      net_profit_lift: '+₹42.8 Lakhs',
-      p_value: 0.002,
-      status: 'WINNER_DECLARED',
-    }
+    mockData.abTesting
   ),
 
   // Analytics & Risk Radar

@@ -465,5 +465,74 @@ export const mockData = {
     { name: 'Model 3: Pre-Fulfillment Return Risk', status: 'ACTIVE', algorithm: 'Random Forest Classifier', accuracy: '86.1%', last_trained: '2026-03-01' },
     { name: 'Model 4: In-Transit RTO Risk Radar', status: 'ACTIVE', algorithm: 'XGBoost with Spatial Heuristics', accuracy: '88.7%', last_trained: '2026-03-01' },
     { name: 'Model 5: Unsupervised Fraud Anomaly Engine', status: 'ACTIVE', algorithm: 'Isolation Forest (150 trees)', accuracy: '94.8%', last_trained: '2026-03-01' }
-  ]
+  ],
+
+  abTesting: {
+    description: "Multi-arm randomized control trial benchmark across 40,000 abandoned checkout sessions.",
+    control_group_note: "A rigorous control group is critical to estimate true incremental lift rather than claiming all recoveries were caused by the intervention. Every lift figure here is measured against the randomised control baseline.",
+    winner: "PayRevive Dynamic NBA Engine",
+    incremental_profit_gain_vs_static: "+172.7% higher net profit margin by preventing discount waste",
+    p_value: 0.0012,
+    confidence_level: "99.9%",
+    sample_total: 40000,
+    status: "WINNER_DECLARED",
+    arms: [
+      {
+        arm: "Control (Zero Outreach)",
+        strategy: "Natural Self-Recovery Baseline",
+        channel: "None (Organic)",
+        sample_size: 10000,
+        natural_recovery_rate_pct: 8.4,
+        incremental_lift_pct: 0.0,
+        recovered_revenue: 2940000.0,
+        revenue_recovered: 2940000.0,
+        cost: 0.0,
+        intervention_cost: 0.0,
+        net_profit: 1029000.0,
+        roi_pct: 0.0
+      },
+      {
+        arm: "Generic Free Shipping Email",
+        strategy: "Static Delivery Waiver 4h Post-Abandon",
+        channel: "Email",
+        sample_size: 10000,
+        natural_recovery_rate_pct: 16.5,
+        incremental_lift_pct: 8.1,
+        recovered_revenue: 5775000.0,
+        revenue_recovered: 5775000.0,
+        cost: 210000.0,
+        intervention_cost: 210000.0,
+        net_profit: 1811250.0,
+        roi_pct: 762.5
+      },
+      {
+        arm: "Static 10% Discount SMS Blast",
+        strategy: "Blanket 10% Coupon (Margin Erosion)",
+        channel: "SMS Blast",
+        sample_size: 10000,
+        natural_recovery_rate_pct: 21.2,
+        incremental_lift_pct: 12.8,
+        recovered_revenue: 7420000.0,
+        revenue_recovered: 7420000.0,
+        cost: 750000.0,
+        intervention_cost: 750000.0,
+        net_profit: 1847000.0,
+        roi_pct: 146.3
+      },
+      {
+        arm: "PayRevive Dynamic NBA Engine",
+        strategy: "AI Next-Best-Action (Sizing, UPI, Concierge)",
+        channel: "WhatsApp / Instant 1-Click",
+        sample_size: 10000,
+        natural_recovery_rate_pct: 42.6,
+        incremental_lift_pct: 34.2,
+        recovered_revenue: 14910000.0,
+        revenue_recovered: 14910000.0,
+        cost: 182000.0,
+        intervention_cost: 182000.0,
+        net_profit: 5036500.0,
+        roi_pct: 2667.3
+      }
+    ]
+  }
 };
